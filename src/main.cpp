@@ -87,9 +87,6 @@ int main(int argc, char **argv)
     int num_lines = 0;
     while (!(shared_data->all_terminated))
     {
-
-		std::vector<Process*>::iterator itr;
-		std::vector<Process*>::iterator nestedItr;
         // clear output from previous iteration
         clearOutput(num_lines);
 
@@ -170,7 +167,29 @@ int main(int argc, char **argv)
 	printf("CPU Utilization: %lf percent,\n", (double)((startTime - currentTime())/totalTime));
 
     //  - Throughput
+
+	double turnaroundTimes[processes.size()];
+	
+	int j = 0;
+	for(itr = processes.begin(); itr < processes.end(); itr++){
+		
+		turnaroundTimes[j] = (*itr)->getTurnaroundTime();
+		j++;
+	}
+
+	std::sort(turnaroundTimes, turnaroundTimes + processes.size());
+
     //     - Average for first 50% of processes finished
+
+	totalTime = 0;
+
+	for(int i = 0; i < (sizeof(turnaroundTimes)/sizeof(turnaroundTimes[1]))/2; i ++){
+
+		totalTime = totalTime + turnaroundTimes[i];
+	}
+
+	//printf("Average throughput for first half: %d process per %lf ms,\n" ((sizeof(turnaroundTimes)/sizeof(turnaroundTimes[1]))/2), totalTime);
+
     //     - Average for second 50% of processes finished
     //     - Overall average
     //  - Average turnaround time
