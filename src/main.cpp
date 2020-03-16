@@ -81,6 +81,8 @@ int main(int argc, char **argv)
 
 	unsigned int startTime = currentTime();
 
+	std::vector<Process*>::iterator itr;
+
     // main thread work goes here:
     int num_lines = 0;
     while (!(shared_data->all_terminated))
@@ -94,42 +96,53 @@ int main(int argc, char **argv)
         // start new processes at their appropriate start time
 
 		for(itr = processes.begin(); itr < processes.end(); itr++){
-			if((*itr)->getState() == Process::State::NotStarted && (*itr)->getStartTime() + startTime < currentTime()){ //Is process not started and is it time to start it?
+			if((*itr)->getState() == Process::State::NotStarted && (*itr)->getStartTime() + startTime < currentTime()){ 
+			//Is process not started and is it time to start it?
 
 				(*itr)->setState(Process::State::Ready, currentTime()); //Set state to ready
 				shared_data->ready_queue.push_back(*itr); //Put back on ready queue
 				
-				printf("Process added to ready queue.\n");
+				//printf("Process added to ready queue.\n");
 			}
 		}
 
         // determine when an I/O burst finishes and put the process back in the ready queue
 
 		for(itr = processes.begin(); itr < processes.end(); itr++){
-			if((*itr)->getState() == Process::State::IO && (*itr)->getCurrBurst()+ (*itr)->getEntryTime() < currentTime()){ //Is process in I/O and has elapsed time passed?
+			if((*itr)->getState() == Process::State::IO && (*itr)->getCurrBurst()+ (*itr)->getEntryTime() < currentTime()){ 
+			//Is process in I/O and has elapsed time passed?
 
 				(*itr)->setState(Process::State::Ready, currentTime()); //Set state back to ready
 				(*itr)->incrementCurrBurst(); //Move to next index of bursts
 				shared_data->ready_queue.push_back(*itr); //Put back on ready queue
 
-				printf("Process I/O burst done; added back to ready queue.\n");
+				//printf("Process I/O burst done; added back to ready queue.\n");
 			}
 		}
 
         // sort the ready queue (if needed - based on scheduling algorithm)
 
-		for(itr = processes.begin(); itr < processes.end(); itr++){
-			for(nestedItr = processes.begin(); nestedItr < processes.end(); nestedItr ++){
-
-				//if(SjfComparator::operator ()(*nestedItr, *(nestedItr+1)){
-				//This is where I finished up for the night.
-				//}		
-			}
+		if(shared_data->algorithm == ScheduleAlgorithm::SJF){
+			shared_data->ready_queue.sort(SjfComparator());
 		}
-		/*Stopping point*/
-
+		if(shared_data->algorithm == ScheduleAlgorithm::PP){
+			shared_data->ready_queue.sort(PpComparator());
+		}
 
         // determine if all processes are in the terminated state
+
+		bool terminated = true;
+
+		for(itr = processes.begin(); itr < processes.end(); itr++){
+		//Check each process to see if it's been terminated.
+			if((*itr)->getState() != Process::State::Terminated){
+				terminated = false;
+			}
+		}
+
+		if(terminated == true){ //Ends loop if all are terminated.
+			shared_data->all_terminated = true;
+		}
 
         // output process status table
         num_lines = printProcessOutput(processes, shared_data->mutex);
@@ -137,7 +150,6 @@ int main(int argc, char **argv)
         // sleep 1/60th of a second
         usleep(16667);
     }
-
 
     // wait for threads to finish
     for (i = 0; i < num_cores; i++)
@@ -147,12 +159,40 @@ int main(int argc, char **argv)
 
     // print final statistics
     //  - CPU utilization
+
+	int totalTime = 0;
+
+	for(itr = processes.begin(); itr < processes.end(); itr ++){
+			
+		totalTime = totalTime + (*itr)->getCpuTime();
+	}
+
+	printf("CPU Utilization: %lf percent,\n", (double)((startTime - currentTime())/totalTime));
+
     //  - Throughput
     //     - Average for first 50% of processes finished
     //     - Average for second 50% of processes finished
     //     - Overall average
     //  - Average turnaround time
+
+	totalTime = 0;
+
+	for(itr = processes.begin(); itr < processes.end(); itr ++){
+
+		totalTime = totalTime + (*itr)->getTurnaroundTime();
+	}
+	printf("Average turnaround time: %lf ms,\n", (double)(totalTime/processes.size()));
+
     //  - Average waiting time
+
+	totalTime = 0;
+
+	for(itr = processes.begin(); itr < processes.end(); itr ++){
+
+		totalTime = totalTime + (*itr)->getWaitTime();
+	}
+
+	printf("Average wait time: %lf ms,\n", (double)(totalTime/processes.size()));	
 
 
     // Clean up before quitting program
