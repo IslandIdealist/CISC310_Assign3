@@ -244,33 +244,38 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	*/
 
 
-/*	currentProcess = *shared_data.ready_queue.pop_front(); //pop the top item off the queue
+	Process *currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
+	shared_data->ready_queue.pop_front();
+	bool processChecker = false;
 	
 	auto start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
-		if( *shared_data.ready_queue.end().pid < currentProcess.pid ) //check if the top of the queue has a higher priorty than the current running process
+		if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid() ) //check if the top of the queue has a higher priorty than the current running process
 		{
 				auto stop = currentTime(); //stop the clock
 				auto timePassed = (stop - start); //generate the time duration
-				currentProcess.wait_time = timePassed; //sets the amount of time that has been completed so far
-				currentProcess.state = State::Ready;  //sets the current process back to ready
-				*shared_data.ready_queue.insert(currentProcess); //inserts the current process back into the queue
-				currentProcess = *shared_data.ready_queue.pop_front(); //pops the new "higher" priority process off the stack
+				currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
+				currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
+				currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
+				shared_data->ready_queue.push_front(currentProcess); //inserts the current process back into the queue
+				currentProcess->incrementCurrBurst();
+				currentProcess = shared_data->ready_queue.front(); //pops the new "higher" priority process off the stack
+				shared_data->ready_queue.pop_front();
 			
 		}
 		
-		if( currentProcess.burst_times[currentProccess.current_burst] == currentProcess.wait_time ) //checks to see if the process has completed
+		if( currentProcess->getCurrBurst() == currentProcess->getWaitTime() ) //checks to see if the process has completed
 		{
 			
-			currentProcess.State = State::IO; //sets the current process to IO state
+			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 			processChecker == true; //breaks out of the loop
 
 		}
 		
 		
 		
-	} */
+	} 
 		
 
 	

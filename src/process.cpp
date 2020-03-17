@@ -7,7 +7,7 @@ Process::Process(ProcessDetails details, uint32_t current_time)
     pid = details.pid;
     start_time = details.start_time;
     num_bursts = details.num_bursts;
-	entry_time = 0;
+    entry_time = 0;
     current_burst = 0;
     burst_times = new uint32_t[num_bursts];
     for (i = 0; i < num_bursts; i++)
@@ -31,9 +31,19 @@ Process::Process(ProcessDetails details, uint32_t current_time)
     }
 }
 
+uint32_t Process::getBurstTimes() const
+{
+	return *burst_times;
+}
+
 Process::~Process() 
 {
     delete[] burst_times;
+}
+
+uint16_t Process::getCurrBurstIndex() const
+{
+    return current_burst;
 }
 
 uint16_t Process::getPid() const
@@ -115,6 +125,8 @@ void Process::updateProcess(uint32_t current_time)
 {
     // use `current_time` to update turnaround time, wait time, burst times, 
     // cpu time, and remaining time
+    wait_time = current_time;
+    turn_time = current_time;
 }
 
 void Process::updateBurstTime(int burst_idx, uint32_t new_time)

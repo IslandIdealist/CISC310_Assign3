@@ -31,6 +31,8 @@ public:
     ~Process();
 
     uint16_t getPid() const;
+    uint32_t getBurstTimes() const;
+    uint16_t getCurrBurstIndex() const;
     uint32_t getStartTime() const;
     uint8_t getPriority() const;
     State getState() const;
