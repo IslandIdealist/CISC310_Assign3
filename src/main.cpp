@@ -213,7 +213,6 @@ int main(int argc, char **argv)
 
 	printf("Average wait time: %lf ms,\n", (double)(totalTime/processes.size()));	
 
-
     // Clean up before quitting program
     processes.clear();
 
@@ -248,19 +247,23 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	shared_data->ready_queue.pop_front();
 	bool processChecker = false;
 	
+			printf("%ld ready queue,\n",shared_data->ready_queue.size());
+
+
 	auto start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
-		if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid() ) //check if the top of the queue has a higher priorty than the current running process
+		if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()  && shared_data->algorithm == ScheduleAlgorithm::PP) //check if the top of the queue has a higher priorty than the current running process
 		{
 				auto stop = currentTime(); //stop the clock
 				auto timePassed = (stop - start); //generate the time duration
 				currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
 				currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
 				currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
-				shared_data->ready_queue.push_front(currentProcess); //inserts the current process back into the queue
+				shared_data->ready_queue.push_back(currentProcess); //inserts the current process back into the queue
 				currentProcess->incrementCurrBurst();
 				currentProcess = shared_data->ready_queue.front(); //pops the new "higher" priority process off the stack
+	
 				shared_data->ready_queue.pop_front();
 			
 		}
