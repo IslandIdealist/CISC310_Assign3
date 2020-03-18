@@ -251,6 +251,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	auto start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
+		//std::cout << currentProcess->getPid() << std::endl;
 		if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid() ) //check if the top of the queue has a higher priorty than the current running process
 		{
 				auto stop = currentTime(); //stop the clock
@@ -276,6 +277,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		
 		
 	} 
+
 		
 
 	
