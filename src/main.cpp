@@ -246,14 +246,16 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	Process *currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
 	shared_data->ready_queue.pop_front();
 	bool processChecker = false;
+
+	printf("getting here\n");
 	
-			printf("%ld ready queue,\n",shared_data->ready_queue.size());
+	printf("%ld ready queue,\n",shared_data->ready_queue.size());
 
 
-	auto start = currentTime(); //start the timing
+	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
-		if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()  && shared_data->algorithm == ScheduleAlgorithm::PP) //check if the top of the queue has a higher priorty than the current running process
+		/*if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()  && shared_data->algorithm == ScheduleAlgorithm::PP) //check if the top of the queue has a higher priorty than the current running process
 		{
 				auto stop = currentTime(); //stop the clock
 				auto timePassed = (stop - start); //generate the time duration
@@ -266,12 +268,17 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	
 				shared_data->ready_queue.pop_front();
 			
-		}
+		}*/
 		
-		if( currentProcess->getCurrBurst() == currentProcess->getWaitTime() ) //checks to see if the process has completed
+		if( currentProcess->getCurrBurst() + currentTime() > start ) //checks to see if the process has completed in normal process.
 		{
 			
 			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
+
+			currentProcess->updateBurstTime(currentProcess->getCurrBurst(), 0); //the cpu burst is over
+			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
+
+
 			processChecker == true; //breaks out of the loop
 
 		}
