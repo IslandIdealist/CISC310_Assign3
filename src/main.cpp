@@ -255,22 +255,40 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
-		/*if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()  && shared_data->algorithm == ScheduleAlgorithm::PP) //check if the top of the queue has a higher priorty than the current running process
+		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
-				auto stop = currentTime(); //stop the clock
-				auto timePassed = (stop - start); //generate the time duration
-				currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
-				currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
-				currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
-				shared_data->ready_queue.push_back(currentProcess); //inserts the current process back into the queue
-				currentProcess->incrementCurrBurst();
-				currentProcess = shared_data->ready_queue.front(); //pops the new "higher" priority process off the stack
-	
-				shared_data->ready_queue.pop_front();
-			
-		}*/
+			if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()) //check if the top of the queue has a higher priorty than the current running process
+			{
+					/*while( completed == false )
+					{
+						shared_data->mutex.lock();
+						while( (shared_data->condtion % shared_data->ready_queue.size()) == 1 ) //Maybe?
+						{
+							shared_data->mutex.unlock();
+							shared_data->mutex.lock();
+							//write data
+							currentProcess->updateTurn(1?);
+							completed = true;
+						}
+					}*/
+					auto stop = currentTime(); //stop the clock
+					auto timePassed = (stop - start); //generate the time duration
+					currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
+					currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
+					currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
+					shared_data->ready_queue.push_back(currentProcess); //inserts the current process back into the queue
+					currentProcess->incrementCurrBurst();
+					currentProcess = shared_data->ready_queue.front(); //pops the new "higher" priority process off the stack
 		
-		if( currentProcess->getCurrBurst() + currentTime() > start ) //checks to see if the process has completed in normal process.
+					shared_data->ready_queue.pop_front();
+				
+			}
+		}
+		auto stop = currentTime();
+		auto timePassed = (stop - start);
+		currentProcess->updateProcess(timePassed);
+		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);		
+		if( currentProcess->getCurrBurst() <= 0 ) //checks to see if the process has completed in normal process.
 		{
 			
 			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
