@@ -90,15 +90,15 @@ int main(int argc, char **argv)
         // clear output from previous iteration
         clearOutput(num_lines);
 
-        // start new processes at their appropriate start time
-
 		for(itr = processes.begin(); itr < processes.end(); itr++){
 
+			//Turnaround time tracker
 			if((*itr)->getState() != Process::State::NotStarted && (*itr)->getState() != Process::State::Terminated){
 
 				(*itr)->updateTurnTime(currentTime()-startTime - (*itr)->getStartTime());
 			}
 
+			// start new processes at their appropriate start time
 			if((*itr)->getState() == Process::State::NotStarted && (*itr)->getStartTime() + startTime < currentTime()){ 
 			//Is process not started and is it time to start it?
 
@@ -242,16 +242,25 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 	//currentProcess = new std::Process();	
 
-	Process *currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
-	shared_data->ready_queue.pop_front();
 	bool processChecker = false;
+	Process *currentProcess;
+
+	{
+		std::lock_guard<std::mutex> lock(shared_data->mutex);
+		currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
+		shared_data->ready_queue.pop_front();
+	}
+	
 
 	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
+		currentProcess->setState(Process::State::Running, currentTime());
+		currentProcess->setCpuCore(core_id);
+		unsigned int stop = currentTime();
+		unsigned int timePassed = (stop - start);
+		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
 
-
-	//printf("%u is curr burst.\n", currentProcess->getCurrBurstIndex());
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
 			if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()) //check if the top of the queue has a higher priorty than the current running process
@@ -270,7 +279,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 					}*/
 					unsigned int stop = currentTime(); //stop the clock
 					unsigned int timePassed = (stop - start); //generate the time duration
-					currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
+					//currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
 					currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
 					currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
 					shared_data->ready_queue.push_back(currentProcess); //inserts the current process back into the queue
@@ -281,19 +290,11 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				
 			}
 		}
-
-
-	//printf("%u is currburst time.\n", currentProcess->getCurrBurst());
-
-		//currentProcess->updateCpuTime((double)((currentTime() - start)/10000));
-		unsigned int stop = currentTime();
-		unsigned int timePassed = (stop - start);
-		currentProcess->updateProcess(timePassed);
-		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
 		//printf("%u is current time passed.\n", stop);		
 		if( currentProcess->getCurrBurst() <= 0 ) //checks to see if the process has completed in normal process.
 		{
 			
+			currentProcess->setCpuCore(-1);
 			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
@@ -301,7 +302,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 
 			processChecker == true; //breaks out of the loop
-
+			usleep(shared_data->context_switch * 1000);
 		}	
 	} 	
 }

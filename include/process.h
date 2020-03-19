@@ -49,8 +49,6 @@ public:
     void setCpuCore(int8_t core_num);
 	void updateTurnTime(uint32_t additionalTime);
 	void updateCpuTime(double additionalTime);
-
-    void updateProcess(uint32_t current_time);
     void updateBurstTime(int burst_idx, uint32_t new_time);
 };
 
