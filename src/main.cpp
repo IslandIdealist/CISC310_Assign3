@@ -260,7 +260,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		unsigned int timePassed = (stop - start);
 		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
 
-		//printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
+		printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
