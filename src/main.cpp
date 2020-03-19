@@ -227,8 +227,6 @@ int main(int argc, char **argv)
 
 void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 {
-    // Work to be done by each core idependent of the other cores
-    //  - Get process at front of ready queue
     //  - Simulate the processes running until one of the following:
     //     - CPU burst time has elapsed
     //     - RR time slice has elapsed
@@ -240,26 +238,29 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
     //  - Wait context switching time
     //  * Repeat until all processes in terminated state
 
-	//currentProcess = new std::Process();	
-
 	bool processChecker = false;
 	Process *currentProcess;
 
 	{
+	    //  - Get process at front of ready queue
 		std::lock_guard<std::mutex> lock(shared_data->mutex);
 		currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
 		shared_data->ready_queue.pop_front();
 	}
 	
+	printf("%u is the currentProcess burst.\n", currentProcess->getCurrBurst());
 
 	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
 		currentProcess->setState(Process::State::Running, currentTime());
 		currentProcess->setCpuCore(core_id);
+
 		unsigned int stop = currentTime();
 		unsigned int timePassed = (stop - start);
 		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
+
+		//printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
@@ -291,7 +292,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 			}
 		}
 		//printf("%u is current time passed.\n", stop);		
-		if( currentProcess->getCurrBurst() <= 0 ) //checks to see if the process has completed in normal process.
+		if( currentProcess->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
 		{
 			
 			currentProcess->setCpuCore(-1);
