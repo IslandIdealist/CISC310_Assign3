@@ -126,12 +126,17 @@ void Process::updateCpuTime(double additionalTime){
 	cpu_time = cpu_time + additionalTime;
 }
 
+void Process::updateTurnTime(uint32_t additionalTime){
+
+	turn_time = additionalTime;
+}
+
 void Process::updateProcess(uint32_t current_time)
 {
     // use `current_time` to update turnaround time, wait time, burst times, 
     // cpu time, and remaining time
     wait_time = current_time;
-    turn_time = current_time;
+    //turn_time = current_time;
 }
 
 void Process::updateBurstTime(int burst_idx, uint32_t new_time)

@@ -93,6 +93,12 @@ int main(int argc, char **argv)
         // start new processes at their appropriate start time
 
 		for(itr = processes.begin(); itr < processes.end(); itr++){
+
+			if((*itr)->getState() != Process::State::NotStarted && (*itr)->getState() != Process::State::Terminated){
+
+				(*itr)->updateTurnTime(currentTime()-startTime - (*itr)->getStartTime());
+			}
+
 			if((*itr)->getState() == Process::State::NotStarted && (*itr)->getStartTime() + startTime < currentTime()){ 
 			//Is process not started and is it time to start it?
 
@@ -240,11 +246,12 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	shared_data->ready_queue.pop_front();
 	bool processChecker = false;
 
-	printf("getting in here.\n");
-
 	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
 	{
+
+
+	//printf("%u is curr burst.\n", currentProcess->getCurrBurstIndex());
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
 			if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()) //check if the top of the queue has a higher priorty than the current running process
@@ -276,7 +283,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		}
 
 
-	printf("%u is currburst time.\n", currentProcess->getCurrBurst());
+	//printf("%u is currburst time.\n", currentProcess->getCurrBurst());
 
 		//currentProcess->updateCpuTime((double)((currentTime() - start)/10000));
 		unsigned int stop = currentTime();
@@ -289,21 +296,14 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 			
 			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 
-			currentProcess->updateBurstTime(currentProcess->getCurrBurst(), 0); //the cpu burst is over
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
 			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
 
 
 			processChecker == true; //breaks out of the loop
 
-		}
-		
-		
-		
-	} 
-
-		
-
-	
+		}	
+	} 	
 }
 
 int printProcessOutput(std::vector<Process*>& processes, std::mutex& mutex)

@@ -47,6 +47,7 @@ public:
 	void incrementCurrBurst();
     void setState(State new_state, uint32_t current_time);
     void setCpuCore(int8_t core_num);
+	void updateTurnTime(uint32_t additionalTime);
 	void updateCpuTime(double additionalTime);
 
     void updateProcess(uint32_t current_time);
