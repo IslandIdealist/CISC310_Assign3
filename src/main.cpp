@@ -236,21 +236,11 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 	//currentProcess = new std::Process();	
 
-	/*
-		Need to increment current burst index after CPU calculation is done
-		When burst is done, make sure that the entry time is set to current time so that it can be later added back to ready queue.
-
-	*/
-
-
 	Process *currentProcess = shared_data->ready_queue.front(); //pop the top item off the queue
 	shared_data->ready_queue.pop_front();
 	bool processChecker = false;
 
-	printf("getting here\n");
-	
-	printf("%ld ready queue,\n",shared_data->ready_queue.size());
-
+	printf("getting in here.\n");
 
 	unsigned int start = currentTime(); //start the timing
 	while( processChecker == false )
@@ -271,8 +261,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 							completed = true;
 						}
 					}*/
-					auto stop = currentTime(); //stop the clock
-					auto timePassed = (stop - start); //generate the time duration
+					unsigned int stop = currentTime(); //stop the clock
+					unsigned int timePassed = (stop - start); //generate the time duration
 					currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
 					currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
 					currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
@@ -284,10 +274,16 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				
 			}
 		}
-		auto stop = currentTime();
-		auto timePassed = (stop - start);
+
+
+	printf("%u is currburst time.\n", currentProcess->getCurrBurst());
+
+		//currentProcess->updateCpuTime((double)((currentTime() - start)/10000));
+		unsigned int stop = currentTime();
+		unsigned int timePassed = (stop - start);
 		currentProcess->updateProcess(timePassed);
-		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);		
+		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
+		//printf("%u is current time passed.\n", stop);		
 		if( currentProcess->getCurrBurst() <= 0 ) //checks to see if the process has completed in normal process.
 		{
 			

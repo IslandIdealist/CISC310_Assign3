@@ -121,6 +121,11 @@ void Process::setCpuCore(int8_t core_num)
     core = core_num;
 }
 
+void Process::updateCpuTime(double additionalTime){
+
+	cpu_time = cpu_time + additionalTime;
+}
+
 void Process::updateProcess(uint32_t current_time)
 {
     // use `current_time` to update turnaround time, wait time, burst times, 
