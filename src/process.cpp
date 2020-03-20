@@ -123,7 +123,7 @@ void Process::setCpuCore(int8_t core_num)
 
 void Process::updateCpuTime(uint32_t additionalTime){
 
-	cpu_time = cpu_time + additionalTime;
+	cpu_time = additionalTime;
 }
 
 void Process::updateTurnTime(uint32_t additionalTime){

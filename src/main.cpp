@@ -267,8 +267,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 		/**This is where the error happens*/
 
-		printf("%ds is time passed.\n", (int)(cpuTime + timePassed));
-		currentProcess->updateCpuTime((int)(cpuTime + timePassed));
+		//sprintf("%ds is time passed.\n", (int32_t)(cpuTime + timePassed));
+		currentProcess->updateCpuTime((int32_t)(cpuTime + timePassed));
 
 
 		if( currentProcess->getCurrBurst()-timePassed <= 0 )
