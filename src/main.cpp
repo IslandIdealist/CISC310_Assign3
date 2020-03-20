@@ -263,21 +263,25 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		currentProcess->setState(Process::State::Running, currentTime());
 		currentProcess->setCpuCore(core_id);
 
-
-
-		/**This is where the error happens*/
-
-		//sprintf("%ds is time passed.\n", (int32_t)(cpuTime + timePassed));
 		currentProcess->updateCpuTime((int32_t)(cpuTime + timePassed));
 
 
-		if( currentProcess->getCurrBurst()-timePassed <= 0 )
+		if(currentProcess->getPid() == 1024){
+
+			printf("%d is time left;\n",currentProcess->getCurrBurst());
+		}
+
+
+
+		//printf("%d is how much time left on burst.\n", burst-timePassed);
+
+		if( burst - timePassed <= 0 )
 		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0);
 		}
 		else
 		{
-			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), burst-timePassed);
 		}
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
@@ -313,6 +317,11 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		{
 			
 			printf("reaching here\n");
+
+			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts()){ //Reaching end of bursts.
+				currentProcess->setCpuCore(-1);
+				currentProcess->setState(Process::State::Terminated, currentTime());
+			}
 
 
 			currentProcess->setCpuCore(-1);

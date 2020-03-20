@@ -101,6 +101,12 @@ uint32_t Process::getCurrBurst() const
 	return burst_times[current_burst];
 }
 
+uint16_t Process::getNumBursts() const
+{
+	return num_bursts;
+}
+
+
 void Process::incrementCurrBurst()
 {
 	current_burst = current_burst + 1;

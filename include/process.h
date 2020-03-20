@@ -43,6 +43,7 @@ public:
     double getRemainingTime() const;
 	double getEntryTime() const;
 	uint32_t getCurrBurst() const;
+	uint16_t getNumBursts() const;
 
 	void incrementCurrBurst();
     void setState(State new_state, uint32_t current_time);
@@ -50,6 +51,8 @@ public:
 	void updateTurnTime(uint32_t additionalTime);
 	void updateCpuTime(uint32_t additionalTime);
     void updateBurstTime(int burst_idx, uint32_t new_time);
+
+
 	//void updateProcess(uint32_t current_time);
 };
 
