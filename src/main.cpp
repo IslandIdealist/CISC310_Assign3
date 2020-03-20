@@ -233,7 +233,6 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
     //     - Process preempted by higher priority process
     //  - Place the process back in the appropriate queue
     //     - I/O queue if CPU burst finished (and process not finished)
-    //     - Terminated if CPU burst finished and no more bursts remain
     //     - Ready queue if time slice elapsed or process was preempted
     //  - Wait context switching time
     //  * Repeat until all processes in terminated state
@@ -281,7 +280,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), burst-timePassed);
 		}
-
+		//Update remaining time
 		currentProcess->updateRemainingTime(remainTime - timePassed);
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
@@ -316,7 +315,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		if( currentProcess->getCurrBurst() == 0) //checks to see if the process has completed in normal process.
 		{
 
-			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts()){ //Reaching end of bursts.
+			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts()){//     - Terminated if CPU burst finished and no more bursts remain
 				currentProcess->setCpuCore(-1);
 				currentProcess->setState(Process::State::Terminated, currentTime());
 			}
@@ -330,7 +329,9 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 
 			processChecker = true; //breaks out of the loop
-			//usleep(shared_data->context_switch);
+			usleep(shared_data->context_switch * 1000);
+			coreRunProcesses(core_id, shared_data);
+
 		}	
 	} 	
 }
