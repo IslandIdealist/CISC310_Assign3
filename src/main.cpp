@@ -250,8 +250,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	//printf("%u is the currentProcess burst.\n", currentProcess->getCurrBurst());
 
 	unsigned int start = currentTime(); //start the timing
-	int burst = currentProcess->getCurrBurst();
-	int cpuTime = currentProcess->getCpuTime();
+	uint32_t burst = currentProcess->getCurrBurst();
+	int32_t cpuTime = currentProcess->getCpuTime();
 	while( processChecker == false )
 	{
 
@@ -262,9 +262,6 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		currentProcess->setState(Process::State::Running, currentTime());
 		currentProcess->setCpuCore(core_id);
 		currentProcess->updateCpuTime(cpuTime + timePassed);
-
-		unsigned int stop = currentTime();
-		unsigned int timePassed = (stop - start);
 		if( currentProcess->getCurrBurst()-timePassed <= 0 )
 		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0);
