@@ -48,7 +48,7 @@ public:
     void setState(State new_state, uint32_t current_time);
     void setCpuCore(int8_t core_num);
 	void updateTurnTime(uint32_t additionalTime);
-	void updateCpuTime(double additionalTime);
+	void updateCpuTime(uint32_t additionalTime);
     void updateBurstTime(int burst_idx, uint32_t new_time);
 };
 

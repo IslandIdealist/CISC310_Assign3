@@ -240,7 +240,6 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 	bool processChecker = false;
 	Process *currentProcess;
-
 	{
 	    //  - Get process at front of ready queue
 		std::lock_guard<std::mutex> lock(shared_data->mutex);
@@ -248,19 +247,32 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		shared_data->ready_queue.pop_front();
 	}
 	
-	printf("%u is the currentProcess burst.\n", currentProcess->getCurrBurst());
+	//printf("%u is the currentProcess burst.\n", currentProcess->getCurrBurst());
 
 	unsigned int start = currentTime(); //start the timing
+	int burst = currentProcess->getCurrBurst();
+	int cpuTime = currentProcess->getCpuTime();
 	while( processChecker == false )
 	{
-		currentProcess->setState(Process::State::Running, currentTime());
-		currentProcess->setCpuCore(core_id);
 
 		unsigned int stop = currentTime();
-		unsigned int timePassed = (stop - start);
-		currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
+		int timePassed = (stop - start);
 
-		printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
+		//printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
+		currentProcess->setState(Process::State::Running, currentTime());
+		currentProcess->setCpuCore(core_id);
+		currentProcess->updateCpuTime(cpuTime + timePassed);
+
+
+		//printf("What im submitting is %u,\n", (uint32_t)currentProcess->getCurrBurst() - timePassed);
+
+		/*if(burst - timePassed < 0){
+	
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0);
+		} else {
+
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), burst - timePassed);
+		}	*/
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
@@ -295,6 +307,9 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		if( currentProcess->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
 		{
 			
+			printf("reaching here\n");
+
+
 			currentProcess->setCpuCore(-1);
 			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 

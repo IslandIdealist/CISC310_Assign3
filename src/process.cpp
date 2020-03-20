@@ -121,7 +121,7 @@ void Process::setCpuCore(int8_t core_num)
     core = core_num;
 }
 
-void Process::updateCpuTime(double additionalTime){
+void Process::updateCpuTime(uint32_t additionalTime){
 
 	cpu_time = cpu_time + additionalTime;
 }
