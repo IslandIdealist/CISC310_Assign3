@@ -142,6 +142,11 @@ void Process::updateBurstTime(int burst_idx, uint32_t new_time)
     burst_times[burst_idx] = new_time;
 }
 
+void Process::updateRemainingTime(int32_t new_time)
+{
+	remain_time = new_time;
+}
+
 /*void Process::updateProcess(uint32_t current_time)
 {
     // use `current_time` to update turnaround time, wait time, burst times, 

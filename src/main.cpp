@@ -252,10 +252,12 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 	unsigned int start = currentTime(); //start the timing
 	uint32_t burst = currentProcess->getCurrBurst();
 	double cpuTime = currentProcess->getCpuTime();
+	double remainTime = currentProcess->getRemainingTime() * 1000.0;
 
 	while( processChecker == false )
 	{
 
+	//printf("%lf is remaining time;\n", remainTime);
 		unsigned int stop = currentTime();
 		int timePassed = (stop - start);
 
@@ -279,6 +281,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), burst-timePassed);
 		}
+
+		currentProcess->updateRemainingTime(remainTime - timePassed);
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
@@ -311,8 +315,6 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		}
 		if( currentProcess->getCurrBurst() == 0) //checks to see if the process has completed in normal process.
 		{
-			
-			printf("reaching here\n");
 
 			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts()){ //Reaching end of bursts.
 				currentProcess->setCpuCore(-1);
@@ -328,7 +330,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 
 			processChecker = true; //breaks out of the loop
-			usleep(shared_data->context_switch);
+			//usleep(shared_data->context_switch);
 		}	
 	} 	
 }
