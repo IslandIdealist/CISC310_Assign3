@@ -251,7 +251,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 	unsigned int start = currentTime(); //start the timing
 	uint32_t burst = currentProcess->getCurrBurst();
-	int32_t cpuTime = currentProcess->getCpuTime();
+	double cpuTime = currentProcess->getCpuTime();
+
 	while( processChecker == false )
 	{
 
@@ -261,7 +262,15 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		//printf("CurrBurst is %u,\n", currentProcess->getCurrBurst());
 		currentProcess->setState(Process::State::Running, currentTime());
 		currentProcess->setCpuCore(core_id);
-		currentProcess->updateCpuTime(cpuTime + timePassed);
+
+
+
+		/**This is where the error happens*/
+
+		printf("%ds is time passed.\n", (int)(cpuTime + timePassed));
+		currentProcess->updateCpuTime((int)(cpuTime + timePassed));
+
+
 		if( currentProcess->getCurrBurst()-timePassed <= 0 )
 		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0);
