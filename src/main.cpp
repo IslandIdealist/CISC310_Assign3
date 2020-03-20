@@ -268,12 +268,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 		if(currentProcess->getPid() == 1024){
 
-			printf("%d is time left;\n",currentProcess->getCurrBurst());
-		}
-
-
-
-		//printf("%d is how much time left on burst.\n", burst-timePassed);
+			//printf("%d is time left;\n",currentProcess->getCurrBurst());
+		} 
 
 		if( burst - timePassed <= 0 )
 		{
@@ -313,7 +309,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				
 			}
 		}
-		if( currentProcess->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
+		if( currentProcess->getCurrBurst() == 0) //checks to see if the process has completed in normal process.
 		{
 			
 			printf("reaching here\n");
@@ -331,8 +327,8 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
 
 
-			processChecker == true; //breaks out of the loop
-			usleep(shared_data->context_switch * 1000);
+			processChecker = true; //breaks out of the loop
+			usleep(shared_data->context_switch);
 		}	
 	} 	
 }
