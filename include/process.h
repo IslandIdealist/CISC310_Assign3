@@ -50,6 +50,7 @@ public:
 	void updateTurnTime(uint32_t additionalTime);
 	void updateCpuTime(double additionalTime);
     void updateBurstTime(int burst_idx, uint32_t new_time);
+	//void updateProcess(uint32_t current_time);
 };
 
 // Comparators: used in std::list sort() method
