@@ -263,16 +263,16 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		currentProcess->setCpuCore(core_id);
 		currentProcess->updateCpuTime(cpuTime + timePassed);
 
-
-		//printf("What im submitting is %u,\n", (uint32_t)currentProcess->getCurrBurst() - timePassed);
-
-		/*if(burst - timePassed < 0){
-	
+		unsigned int stop = currentTime();
+		unsigned int timePassed = (stop - start);
+		if( currentProcess->getCurrBurst()-timePassed <= 0 )
+		{
 			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0);
-		} else {
-
-			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), burst - timePassed);
-		}	*/
+		}
+		else
+		{
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentProcess->getCurrBurst()-timePassed);
+		}
 
 		if( (shared_data->ready_queue.size() != 0) && (shared_data->algorithm == ScheduleAlgorithm::PP) )
 		{
@@ -291,7 +291,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 						}
 					}*/
 					unsigned int stop = currentTime(); //stop the clock
-					unsigned int timePassed = (stop - start); //generate the time duration
+					timePassed = (stop - start); //generate the time duration
 					//currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
 					currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
 					currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
@@ -303,7 +303,6 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				
 			}
 		}
-		//printf("%u is current time passed.\n", stop);		
 		if( currentProcess->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
 		{
 			

@@ -136,6 +136,14 @@ void Process::updateBurstTime(int burst_idx, uint32_t new_time)
     burst_times[burst_idx] = new_time;
 }
 
+/*void Process::updateProcess(uint32_t current_time)
+{
+    // use `current_time` to update turnaround time, wait time, burst times, 
+    // cpu time, and remaining time
+    wait_time = current_time;
+    turn_time = current_time;
+}*/
+
 
 // Comparator methods: used in std::list sort() method
 
