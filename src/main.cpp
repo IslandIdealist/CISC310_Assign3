@@ -112,7 +112,11 @@ int main(int argc, char **argv)
         // determine when an I/O burst finishes and put the process back in the ready queue
 
 		for(itr = processes.begin(); itr < processes.end(); itr++){
-			if((*itr)->getState() == Process::State::IO && (*itr)->getCurrBurst()+ (*itr)->getEntryTime() < currentTime()){ 
+
+
+			//printf("%d is currBUrst and entryTime\n", (*itr)->getCurrBurst() + (*itr)->getEntryTime());
+
+			if((*itr)->getState() == Process::State::IO && (*itr)->getCurrBurst() + (*itr)->getEntryTime() < currentTime()){ 
 			//Is process in I/O and has elapsed time passed?
 
 				(*itr)->setState(Process::State::Ready, currentTime()); //Set state back to ready
@@ -311,11 +315,10 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 
 			currentProcess->setCpuCore(-1);
-			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 
-			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
+			//currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
 			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
-
+						currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 
 			processChecker = true; //breaks out of the loop
 			usleep(shared_data->context_switch * 1000);

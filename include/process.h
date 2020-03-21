@@ -42,7 +42,7 @@ public:
     double getWaitTime() const;
     double getCpuTime() const;
     double getRemainingTime() const;
-	double getEntryTime() const;
+	int32_t getEntryTime() const;
 	uint32_t getCurrBurst() const;
 	uint16_t getNumBursts() const;
 

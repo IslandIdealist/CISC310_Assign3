@@ -91,9 +91,9 @@ double Process::getRemainingTime() const
     return (double)remain_time / 1000.0;
 }
 
-double Process::getEntryTime() const
+int32_t Process::getEntryTime() const
 {
-	return (double)entry_time / 1000.0;
+	return entry_time;
 }
 
 uint32_t Process::getCurrBurst() const
@@ -119,6 +119,10 @@ void Process::setState(State new_state, uint32_t current_time)
     {
         launch_time = current_time;
     }
+	if(new_state == State::IO){
+		entry_time = current_time;
+	}
+
     state = new_state;
 }
 
