@@ -110,7 +110,8 @@ int main(int argc, char **argv)
 		}
 
         // determine when an I/O burst finishes and put the process back in the ready queue
-
+		int ioBurstCompleted = 0;
+		uint32_t start = currentTime();
 		for(itr = processes.begin(); itr < processes.end(); itr++){
 
 
@@ -118,12 +119,31 @@ int main(int argc, char **argv)
 
 			if((*itr)->getState() == Process::State::IO && (*itr)->getCurrBurst() + (*itr)->getEntryTime() < currentTime()){ 
 			//Is process in I/O and has elapsed time passed?
+				while( ioBurstCompleted == 0 )
+				{
+					uint32_t ioBurst = (*itr)->getCurrBurst();
+					uint32_t stop = currentTime();
+					int timePassed = (stop - start);
+					(*itr)->setState(Process::State::IO, currentTime());
 
-				(*itr)->setState(Process::State::Ready, currentTime()); //Set state back to ready
-				(*itr)->incrementCurrBurst(); //Move to next index of bursts
-				shared_data->ready_queue.push_back(*itr); //Put back on ready queue
+					if( ioBurst - timePassed <= 0 )
+					{
+						(*itr)->updateBurstTime((*itr)->getCurrBurstIndex(), 0);
+					}
+					else
+					{
+						(*itr)->updateBurstTime((*itr)->getCurrBurstIndex(), ioBurst-timePassed);
+					}
+					//Update remaining time
+					if( (*itr)->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
+					{
+						(*itr)->setState(Process::State::Ready, currentTime()); //Set state back to ready
+						(*itr)->incrementCurrBurst(); //Move to next index of bursts
+						shared_data->ready_queue.push_back(*itr); //Put back on ready queue
+						ioBurstCompleted = 1;
+					}
+				}
 
-				//printf("Process I/O burst done; added back to ready queue.\n");
 			}
 		}
 
@@ -312,13 +332,12 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				currentProcess->setCpuCore(-1);
 				currentProcess->setState(Process::State::Terminated, currentTime());
 			}
-
+			
+			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
+			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
 
 			currentProcess->setCpuCore(-1);
-
-			//currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
-			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
-						currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
+			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
 
 			processChecker = true; //breaks out of the loop
 			usleep(shared_data->context_switch * 1000);
