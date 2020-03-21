@@ -287,23 +287,10 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		{
 			if( shared_data->ready_queue.front()->getPid() < currentProcess->getPid()) //check if the top of the queue has a higher priorty than the current running process
 			{
-					/*while( completed == false )
-					{
-						shared_data->mutex.lock();
-						while( (shared_data->condtion % shared_data->ready_queue.size()) == 1 ) //Maybe?
-						{
-							shared_data->mutex.unlock();
-							shared_data->mutex.lock();
-							//write data
-							currentProcess->updateTurn(1?);
-							completed = true;
-						}
-					}*/
-					unsigned int stop = currentTime(); //stop the clock
+					
+					stop = currentTime(); //stop the clock
 					timePassed = (stop - start); //generate the time duration
-					//currentProcess->updateProcess(timePassed); //sets the amount of time that has been completed so far
 					currentProcess->setState(Process::State::Ready, currentTime());  //sets the current process back to ready
-					currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), currentTime());
 					shared_data->ready_queue.push_back(currentProcess); //inserts the current process back into the queue
 					currentProcess->incrementCurrBurst();
 					currentProcess = shared_data->ready_queue.front(); //pops the new "higher" priority process off the stack
@@ -312,10 +299,11 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				
 			}
 		}
-		if( currentProcess->getCurrBurst() == 0) //checks to see if the process has completed in normal process.
+		if( currentProcess->getCurrBurst() <= 0) //checks to see if the process has completed in normal process.
 		{
 
-			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts()){//     - Terminated if CPU burst finished and no more bursts remain
+			if(currentProcess->getCurrBurstIndex() + 1 >= currentProcess->getNumBursts())// Terminated if CPU burst finished and no more bursts remain
+			{
 				currentProcess->setCpuCore(-1);
 				currentProcess->setState(Process::State::Terminated, currentTime());
 			}
