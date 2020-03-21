@@ -239,6 +239,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 
 	bool processChecker = false;
 	Process *currentProcess;
+	while(shared_data->ready_queue.size() == 0){}
 	{
 	    //  - Get process at front of ready queue
 		std::lock_guard<std::mutex> lock(shared_data->mutex);
@@ -267,7 +268,7 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 		currentProcess->updateCpuTime((int32_t)(cpuTime + timePassed));
 
 
-		if(currentProcess->getPid() == 1024){
+		if(core_id == 0){
 
 			//printf("%d is time left;\n",currentProcess->getCurrBurst());
 		} 
