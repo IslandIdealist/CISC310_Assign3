@@ -332,13 +332,17 @@ void coreRunProcesses(uint8_t core_id, SchedulerData *shared_data)
 				currentProcess->setCpuCore(-1);
 				currentProcess->setState(Process::State::Terminated, currentTime());
 			}
+			else
+			{
+				currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
+				currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
+
+				currentProcess->setCpuCore(-1);
+				currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
+
+			}
 			
-			currentProcess->updateBurstTime(currentProcess->getCurrBurstIndex(), 0); //the cpu burst is over
-			currentProcess->incrementCurrBurst(); //move onto next burst for IO cycle
-
-			currentProcess->setCpuCore(-1);
-			currentProcess->setState(Process::State::IO, currentTime()); //sets the current process to IO state
-
+			
 			processChecker = true; //breaks out of the loop
 			usleep(shared_data->context_switch * 1000);
 			coreRunProcesses(core_id, shared_data);
